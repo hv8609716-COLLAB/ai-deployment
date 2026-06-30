@@ -1,1 +1,26 @@
+import tensorflow as tf
+import numpy as np
 
+x = np.array([1,2,3,4,5], dtype=float)
+y = np.array([2,4,9,16, 25], dtype=float)
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(units=1, input_shape=[1])
+])
+
+
+model.compile(optimizer="adam", loss="mean_squared_error")
+
+model.fit(x, y, epochs=50)
+
+model.export("my_save_model")
+
+print("model saved successfully")
+
+# Keras 3's load_model does not support SavedModel directly for loading.
+# Use TFSMLayer for inference-only loading of SavedModels.
+loaded_model = tf.keras.layers.TFSMLayer("my_save_model", call_endpoint='serve')
+
+# When using TFSMLayer, you call the layer directly for prediction
+result = loaded_model(tf.constant([[6.0]]))
+print(result)
